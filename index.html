@@ -1,0 +1,393 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>প্রোজেক্ট পুনর্জন্ম</title>
+    <link href="https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.5.1/dist/confetti.browser.min.js"></script>
+    <style>
+        .theme-light-1 { --bg: #f0f9ff; --card: #ffffff; --text: #1e293b; --accent: #0ea5e9; --shadow: rgba(14,165,233,0.1); }
+        .theme-light-2 { --bg: #fdf2f8; --card: #ffffff; --text: #831843; --accent: #db2777; --shadow: rgba(219,39,119,0.1); }
+        .theme-light-3 { --bg: #f0fdf4; --card: #ffffff; --text: #14532d; --accent: #16a34a; --shadow: rgba(22,163,74,0.1); }
+        .theme-light-4 { --bg: #fff7ed; --card: #ffffff; --text: #7c2d12; --accent: #ea580c; --shadow: rgba(234,88,12,0.1); }
+        .theme-light-5 { --bg: #fafafa; --card: #ffffff; --text: #171717; --accent: #404040; --shadow: rgba(0,0,0,0.05); }
+        .theme-dark-1 { --bg: #0f172a; --card: #1e293b; --text: #f1f5f9; --accent: #38bdf8; --shadow: rgba(0,0,0,0.3); }
+        .theme-dark-2 { --bg: #1a1c2c; --card: #252945; --text: #e0e0e0; --accent: #ff79c6; --shadow: rgba(0,0,0,0.4); }
+        .theme-dark-3 { --bg: #052e16; --card: #064e3b; --text: #ecfdf5; --accent: #34d399; --shadow: rgba(0,0,0,0.5); }
+        .theme-dark-4 { --bg: #2d1b69; --card: #4c1d95; --text: #f5f3ff; --accent: #a78bfa; --shadow: rgba(0,0,0,0.3); }
+        .theme-dark-5 { --bg: #171717; --card: #262626; --text: #ffffff; --accent: #facc15; --shadow: rgba(0,0,0,0.6); }
+
+        body { background-color: var(--bg); color: var(--text); font-family: 'Hind Siliguri', sans-serif; display: flex; justify-content: center; align-items: center; min-height: 100vh; margin: 0; transition: 0.5s; overflow: hidden; }
+        .container { background: var(--card); padding: 40px 25px; border-radius: 40px; box-shadow: 0 25px 50px var(--shadow); width: 90%; max-width: 400px; text-align: center; position: relative; z-index: 10; }
+        .top-btns { position: absolute; top: 20px; right: 20px; display: flex; gap: 8px; flex-wrap: wrap; justify-content: flex-end;}
+        .icon-btn { background: var(--card); border: 1.2px solid var(--accent); cursor: pointer; border-radius: 50%; width: 30px; height: 30px; display: flex; align-items: center; justify-content: center; font-size: 13px; transition: 0.3s; padding: 0; color: var(--text); }
+        .icon-btn:hover { transform: scale(1.1); background: var(--bg); }
+        h1 { font-size: 2.2rem; color: var(--accent); margin-bottom: 5px; font-weight: 700; letter-spacing: 0.5px; }
+        .subtitle { opacity: 0.85; font-size: 1.1rem; margin-top: 0px; margin-bottom: 15px; font-weight: 500; }
+        #days-val { font-size: 6.5rem; font-weight: 700; display: block; line-height: 1; margin: 10px 0; font-family: 'Arial', sans-serif; }
+        .label { font-size: 1.1rem; opacity: 0.8; font-weight: 600; text-transform: uppercase; }
+        .medal-container { display: flex; justify-content: center; flex-wrap: wrap; gap: 8px; margin-top: 20px; }
+        .medal { font-size: 1.5rem; filter: grayscale(1); transition: 0.5s; opacity: 0.2; cursor: help; }
+        .medal.active { filter: grayscale(0); opacity: 1; transform: scale(1.1); }
+        .btn { background: var(--accent); color: white; border: none; padding: 14px; border-radius: 50px; font-weight: 600; font-family: inherit; cursor: pointer; margin-top: 20px; width: 100%; font-size: 1rem; transition: 0.3s; }
+        .emergency-text { font-size: 1.1rem; font-weight: 600; color: #ef4444; line-height: 1.5; animation: pulse 1.5s infinite; }
+        @keyframes pulse { 0% { transform: scale(1); } 50% { transform: scale(1.02); } 100% { transform: scale(1); } }
+        #details-box { display: none; margin-top: 20px; padding: 15px; background: rgba(0,0,0,0.05); border-radius: 20px; font-size: 0.9rem; }
+        .pass-wrapper { position: relative; width: 100%; }
+        .eye-icon { position: absolute; right: 15px; top: 50%; transform: translateY(-50%); cursor: pointer; opacity: 0.6; }
+        input { width: 100%; padding: 12px; margin: 10px 0; border-radius: 12px; border: 1px solid var(--accent); background: var(--bg); color: var(--text); font-family: inherit; box-sizing: border-box; }
+        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); backdrop-filter: blur(8px); z-index: 100; }
+        .modal-content { background: var(--card); color: var(--text); width: 85%; max-width: 350px; padding: 30px; border-radius: 30px; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); text-align: center; }
+        .hidden { display: none !important; }
+    </style>
+</head>
+<body id="body-tag">
+
+    <div id="auth-screen" class="container hidden">
+        <h1>প্রোজেক্ট পুনর্জন্ম</h1>
+        <p class="subtitle">লগইন করে আপনার যাত্রা শুরু করুন</p>
+        <input type="email" id="login-email" placeholder="আপনার ইমেইল">
+        <div class="pass-wrapper">
+            <input type="password" id="login-pass" placeholder="আপনার পাসওয়ার্ড">
+            <span class="eye-icon" onclick="togglePassView()">👁️</span>
+        </div>
+        <button class="btn" id="login-btn">লগইন করুন</button>
+        <p onclick="showMainApp()" style="cursor:pointer; margin-top:15px; opacity:0.6; font-size:0.9rem;">ফিরে যান</p>
+    </div>
+
+    <div id="main-app" class="container">
+        <div class="top-btns">
+            <button id="history-btn" class="icon-btn hidden" onclick="openHistoryModal()" title="অতীত রেকর্ড">📜</button>
+            <button id="reset-btn" class="icon-btn hidden" onclick="openRelapseModal()" style="color:#f97316; border-color:#f97316;" title="রিলাপ্স এন্ট্রি">🔄</button>
+            <button id="time-btn" class="icon-btn hidden" onclick="openModal()" title="সময় পরিবর্তন">🕒</button>
+            <button class="icon-btn" onclick="manualThemeChange()" title="থিম পরিবর্তন">🎨</button>
+            <button class="icon-btn" onclick="showEmergency()" style="color:#ef4444; border-color:#ef4444;" title="SOS">⚠️</button>
+            <button id="logout-btn" class="icon-btn hidden" onclick="logoutUser()" style="color:#ef4444; border-color:#ef4444;" title="লগআউট">🚪</button>
+            <button id="show-login-btn" class="icon-btn" onclick="showLogin()" title="লগইন করুন">🔑</button>
+        </div>
+        <h1 style="margin-bottom: 0px">প্রোজেক্ট পুনর্জন্ম</h1>
+        <p class="subtitle">নিজেকে নতুন করে গড়ার শপথ</p>
+        <span id="days-val">0</span>
+        <span class="label">দিন সফল</span>
+
+        <div class="medal-container">
+            <span id="medal-1" class="medal" title="১ দিন সফল">🛡️</span>
+            <span id="medal-7" class="medal" title="১ সপ্তাহ সফল">🏅</span>
+            <span id="medal-30" class="medal" title="১ মাস সফল">💎</span>
+            <span id="medal-90" class="medal" title="৩ মাস সফল">🔥</span>
+            <span id="medal-180" class="medal" title="৬ মাস সফল">👑</span>
+            <span id="medal-270" class="medal" title="৯ মাস সফল">🌌</span>
+            <span id="medal-365" class="medal" title="১ বছর সফল">🚀</span>
+        </div>
+        
+        <button class="btn" onclick="toggleDetails()" id="btn-text">বিস্তারিত দেখুন</button>
+        <div id="details-box"></div>
+    </div>
+
+    <div class="modal" id="time-modal">
+        <div class="modal-content">
+            <h3 style="margin-top:0;">সময় নির্ধারণ</h3>
+            <p style="font-size: 0.8rem; opacity: 0.7;">আপনার যাত্রা শুরুর সঠিক সময়টি নির্বাচন করুন।</p>
+            <input type="datetime-local" id="manual-date">
+            <button class="btn" id="save-cloud-btn">সময় আপডেট করুন</button>
+            <p onclick="closeModal()" style="cursor:pointer; margin-top:15px; opacity:0.6; font-size:0.9rem;">ফিরে যান</p>
+        </div>
+    </div>
+
+    <div class="modal" id="relapse-modal">
+        <div class="modal-content">
+            <h3 style="margin-top:0; color: #ef4444;">রিলাপ্স এন্ট্রি</h3>
+            <p style="font-size: 0.85rem; opacity: 0.8;">ভুল থেকে শিক্ষা নেওয়াই আসল জয়। রিলাপ্সের কারণ লিখুন:</p>
+            <textarea id="relapse-reason" rows="3" style="width: 100%; border-radius:12px; padding:10px; border: 1px solid var(--accent); background: var(--bg); color: var(--text); font-family: inherit; margin-bottom: 15px;" placeholder="কেন এমন হলো? ট্রিগার কী ছিল?"></textarea>
+            <button class="btn" id="confirm-relapse-btn">রিসেট করুন</button>
+            <p onclick="closeRelapseModal()" style="cursor:pointer; margin-top:15px; opacity:0.6; font-size:0.9rem;">ফিরে যান</p>
+        </div>
+    </div>
+
+    <div class="modal" id="history-modal">
+        <div class="modal-content" style="max-height: 80vh; overflow-y: auto;">
+            <h3 style="margin-top:0;">আপনার অতীত যাত্রা</h3>
+            <div id="history-list" style="text-align: left; font-size: 0.95rem; margin-top: 15px;"></div>
+            <p onclick="closeHistoryModal()" style="cursor:pointer; margin-top:20px; opacity:0.6; font-size:0.9rem;">বন্ধ করুন</p>
+        </div>
+    </div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+        import { getAuth, signInWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+        // updateDoc এবং arrayUnion যুক্ত করা হয়েছে
+        import { getFirestore, doc, setDoc, getDoc, updateDoc, arrayUnion } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyAO7cN-tZXl06VetScOfNnt1PAa5X5VYE4",
+            authDomain: "punorjonmo-bdc5d.firebaseapp.com",
+            projectId: "punorjonmo-bdc5d",
+            storageBucket: "punorjonmo-bdc5d.firebasestorage.app",
+            messagingSenderId: "456028735818",
+            appId: "1:456028735818:web:5aec4faa76a1b197ac59b3"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+
+        const PUBLIC_UID = "rseq4JdX6NZWzKRsMJzIoxRrxur1"; 
+
+        window.addEventListener('beforeunload', () => {
+            if (auth.currentUser) { signOut(auth); }
+        });
+
+        window.showLogin = () => {
+            document.getElementById('main-app').classList.add('hidden');
+            document.getElementById('auth-screen').classList.remove('hidden');
+        };
+
+        window.showMainApp = () => {
+            document.getElementById('auth-screen').classList.add('hidden');
+            document.getElementById('main-app').classList.remove('hidden');
+        };
+
+        async function fetchPublicData() {
+            try {
+                const snap = await getDoc(doc(db, "users", PUBLIC_UID));
+                if (snap.exists()) {
+                    localStorage.setItem('startDate', snap.data().startDate);
+                    window.updateCounter();
+                }
+            } catch (e) { console.error("Error fetching data:", e); }
+        }
+
+        onAuthStateChanged(auth, (user) => {
+            if (user) {
+                document.getElementById('auth-screen').classList.add('hidden');
+                document.getElementById('main-app').classList.remove('hidden');
+                document.getElementById('time-btn').classList.remove('hidden');
+                document.getElementById('logout-btn').classList.remove('hidden');
+                document.getElementById('history-btn').classList.remove('hidden'); // নতুন বাটন শো
+                document.getElementById('reset-btn').classList.remove('hidden'); // নতুন বাটন শো
+                document.getElementById('show-login-btn').classList.add('hidden');
+                loadFromCloud(user.uid);
+            } else {
+                document.getElementById('time-btn').classList.add('hidden');
+                document.getElementById('logout-btn').classList.add('hidden');
+                document.getElementById('history-btn').classList.add('hidden'); // নতুন বাটন হাইড
+                document.getElementById('reset-btn').classList.add('hidden'); // নতুন বাটন হাইড
+                document.getElementById('show-login-btn').classList.remove('hidden');
+                fetchPublicData();
+            }
+        });
+
+        async function saveToCloud(ts) {
+            if(!auth.currentUser) return;
+            await setDoc(doc(db, "users", auth.currentUser.uid), { startDate: ts }, { merge: true });
+            localStorage.setItem('startDate', ts);
+            window.updateCounter();
+        }
+
+        // ক্লাউড থেকে হিস্ট্রি সহ ডেটা লোড করার আপডেট
+        async function loadFromCloud(uid) {
+            const snap = await getDoc(doc(db, "users", uid));
+            if (snap.exists()) {
+                const data = snap.data();
+                localStorage.setItem('startDate', data.startDate);
+                if(data.history) {
+                    localStorage.setItem('history', JSON.stringify(data.history));
+                } else {
+                    localStorage.removeItem('history');
+                }
+                window.updateCounter();
+            }
+        }
+
+        document.getElementById('save-cloud-btn').onclick = () => {
+            const newVal = new Date(document.getElementById('manual-date').value).getTime();
+            if(newVal > Date.now()) return alert("ভবিষ্যতে যাওয়া সম্ভব নয়!");
+            saveToCloud(newVal);
+            closeModal();
+            alert("সময় সফলভাবে আপডেট করা হয়েছে!");
+        };
+
+        document.getElementById('login-btn').onclick = async () => {
+            const email = document.getElementById('login-email').value;
+            const pass = document.getElementById('login-pass').value;
+            try { await signInWithEmailAndPassword(auth, email, pass); } catch (e) { alert("ভুল ইমেইল বা পাসওয়ার্ড!"); }
+        };
+
+        // লগআউট করার সময় লোকাল স্টোরেজ ক্লিয়ার করা
+        window.logoutUser = () => signOut(auth).then(() => {
+            localStorage.clear();
+            location.reload();
+        });
+
+        window.togglePassView = function() {
+            const p = document.getElementById('login-pass');
+            p.type = (p.type === "password") ? "text" : "password";
+        };
+
+        window.updateCounter = function() {
+            const startVal = localStorage.getItem('startDate');
+            if(!startVal) return;
+            const start = parseInt(startVal);
+            const diff = Date.now() - start;
+            let d = Math.floor(diff / (1000 * 60 * 60 * 24));
+            
+            document.getElementById('days-val').innerText = d;
+
+            const milestones = [1, 7, 30, 90, 180, 270, 365];
+            milestones.forEach(m => {
+                const el = document.getElementById(`medal-${m}`);
+                if (el) {
+                    if (d >= m) el.classList.add('active');
+                    else el.classList.remove('active');
+                }
+            });
+
+            let s = Math.floor(diff / 1000);
+            let mi = Math.floor(s / 60);
+            let h = Math.floor(mi / 60);
+            let w = Math.floor(d / 7);
+            let mo = Math.floor(d / 30);
+
+            let parts = [];
+            if (mo > 0) parts.push(`<b>${mo}</b> মাস`);
+            if (w % 4 > 0) parts.push(`<b>${w % 4}</b> সপ্তাহ`);
+            if (d % 7 > 0) parts.push(`<b>${d % 7}</b> দিন`);
+            if (h % 24 > 0) parts.push(`<b>${h % 24}</b> ঘণ্টা`);
+            if (mi % 60 > 0) parts.push(`<b>${mi % 60}</b> মিনিট`);
+            parts.push(`<b>${s % 60}</b> সেকেন্ড`);
+
+            const detailsBox = document.getElementById('details-box');
+            if(detailsBox && detailsBox.style.display === "block" && !detailsBox.querySelector('.emergency-text')) {
+                detailsBox.innerHTML = "আপনি আসক্তি মুক্ত আছেন:<br>" + parts.join(', ');
+            }
+        };
+
+        // --- নতুন মডাল এবং রিলাপ্স লজিক ---
+        window.openRelapseModal = () => document.getElementById('relapse-modal').style.display = 'block';
+        window.closeRelapseModal = () => document.getElementById('relapse-modal').style.display = 'none';
+
+        window.openHistoryModal = () => {
+            document.getElementById('history-modal').style.display = 'block';
+            const historyData = JSON.parse(localStorage.getItem('history') || '[]');
+            const listDiv = document.getElementById('history-list');
+
+            if(historyData.length === 0) {
+                listDiv.innerHTML = "<p style='text-align:center; opacity: 0.7;'>এখনো কোনো রিলাপ্স রেকর্ড নেই। এভাবেই এগিয়ে যান!</p>";
+                return;
+            }
+
+            let html = "";
+            // নতুন রেকর্ডগুলো আগে দেখানোর জন্য reverse
+            [...historyData].reverse().forEach((item) => {
+                const start = new Date(item.startDate).toLocaleDateString('bn-BD');
+                const end = new Date(item.endDate).toLocaleDateString('bn-BD');
+                html += `
+                <div style="background: var(--bg); padding: 12px; margin-bottom: 12px; border-radius: 12px; border-left: 4px solid #ef4444;">
+                    <strong style="font-size: 1.1rem;">${item.days} দিন</strong> <span style="opacity: 0.8;">ক্লিন ছিলেন</span><br>
+                    <small style="opacity:0.6;">${start} থেকে ${end}</small><br>
+                    <div style="margin-top: 5px;"><span style="color: #ef4444; font-weight: 600;">কারণ:</span> ${item.reason}</div>
+                </div>`;
+            });
+            listDiv.innerHTML = html;
+        };
+        window.closeHistoryModal = () => document.getElementById('history-modal').style.display = 'none';
+
+        // ডাটাবেসে রিলাপ্স রেকর্ড সেভ করা
+        document.getElementById('confirm-relapse-btn').onclick = async () => {
+            const reason = document.getElementById('relapse-reason').value.trim();
+            if(!reason) {
+                alert("অনুগ্রহ করে রিলাপ্সের কারণ উল্লেখ করুন। এটি ভবিষ্যতে আপনাকে সতর্ক হতে সাহায্য করবে।");
+                return;
+            }
+
+            if(!auth.currentUser) return;
+
+            const currentStart = parseInt(localStorage.getItem('startDate'));
+            const now = Date.now();
+            const durationMs = now - currentStart;
+            const durationDays = Math.floor(durationMs / (1000 * 60 * 60 * 24));
+
+            const historyItem = {
+                startDate: currentStart,
+                endDate: now,
+                days: durationDays,
+                reason: reason
+            };
+
+            const userRef = doc(db, "users", auth.currentUser.uid);
+
+            try {
+                // setDoc with merge ব্যবহার করা হয়েছে যাতে নতুন ইউজারের ডকুমেন্ট না থাকলেও এরর না দেয়
+                await setDoc(userRef, {
+                    history: arrayUnion(historyItem),
+                    startDate: now
+                }, { merge: true });
+                
+                // লোকাল স্টোরেজ আপডেট
+                const localHist = JSON.parse(localStorage.getItem('history') || '[]');
+                localHist.push(historyItem);
+                localStorage.setItem('history', JSON.stringify(localHist));
+                localStorage.setItem('startDate', now);
+
+                window.updateCounter();
+                window.closeRelapseModal();
+                document.getElementById('relapse-reason').value = ""; 
+                alert("রেকর্ড সেভ হয়েছে! হতাশ হবেন না, নিজের ভুল থেকে শিখে নতুন করে শুরু করুন। আপনি পারবেন!");
+            } catch(e) {
+                alert("দুঃখিত, কোনো একটি সমস্যা হয়েছে। আবার চেষ্টা করুন।");
+                console.error(e);
+            }
+        };
+    </script>
+
+    <script>
+        function getCurrentThemeList() {
+            return window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? 
+                ['theme-dark-1', 'theme-dark-2', 'theme-dark-3', 'theme-dark-4', 'theme-dark-5'] : 
+                ['theme-light-1', 'theme-light-2', 'theme-light-3', 'theme-light-4', 'theme-light-5'];
+        }
+
+        function applyRandomTheme() {
+            const list = getCurrentThemeList();
+            document.getElementById('body-tag').className = list[Math.floor(Math.random() * list.length)];
+        }
+
+        window.onload = () => {
+            applyRandomTheme();
+            const now = new Date();
+            now.setMinutes(now.getMinutes() - now.getTimezoneOffset());
+            document.getElementById('manual-date').value = now.toISOString().slice(0, 16);
+            if(window.updateCounter) window.updateCounter();
+        };
+
+        function manualThemeChange() {
+            const body = document.getElementById('body-tag');
+            const list = getCurrentThemeList();
+            let idx = (list.indexOf(body.className) + 1) % list.length;
+            body.className = list[idx];
+        }
+
+        function openModal() { document.getElementById('time-modal').style.display = 'block'; }
+        function closeModal() { document.getElementById('time-modal').style.display = 'none'; }
+
+        function toggleDetails() {
+            const box = document.getElementById('details-box');
+            const isHidden = box.style.display === "none" || box.style.display === "";
+            box.style.display = isHidden ? "block" : "none";
+            document.getElementById('btn-text').innerText = isHidden ? "সংক্ষিপ্ত করুন" : "বিস্তারিত দেখুন";
+            if(isHidden && window.updateCounter) window.updateCounter();
+        }
+
+        function showEmergency() {
+            const box = document.getElementById('details-box');
+            const quotes = ["এই কয়েক মিনিটের তৃপ্তি কি আপনার দীর্ঘদিনের আত্মসম্মানের চেয়েও দামী?", "আজ হার মানলে কাল সকালে নিজের আয়নার সামনে দাঁড়াতে পারবেন তো?", "ক্ষণস্থায়ী আনন্দ আপনাকে দীর্ঘস্থায়ী বিষণ্ণতা উপহার দেবে।", "আপনার ভবিষ্যৎ সংস্করণ আজ আপনার কাছে সাহায্য চাইছে, তাকে হতাশ করবেন না।"];
+            box.innerHTML = `<div class="emergency-text">⚠️ ${quotes[Math.floor(Math.random() * quotes.length)]}</div>`;
+            box.style.display = "block";
+            document.getElementById('btn-text').innerText = "সংক্ষিপ্ত করুন";
+        }
+
+        setInterval(() => { if(window.updateCounter) window.updateCounter(); }, 1000);
+    </script>
+</body>
+</html>
